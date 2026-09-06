@@ -1,0 +1,329 @@
+/* ---------------------------------------------------------------
+   Design tokens
+   Subject: a token is a boarding pass; the staff view is a departures
+   board. Split-flap amber-on-navy for predicted times/tokens, since
+   that's literally what an arrivals/departures board looks like.
+------------------------------------------------------------------ */
+:root {
+  --ink: #12181F;
+  --muted: #5B6472;
+  --line: #E3E7EB;
+  --surface: #FFFFFF;
+  --surface-alt: #F5F6F8;
+
+  --board-bg: #0B1220;
+  --board-line: #1E2A3D;
+  --board-amber: #FFB020;
+  --board-dim: #6E93A2;
+
+  --accent: #2563A8;
+  --accent-ink: #164272;
+
+  --good: #2F8F5B;
+  --good-bg: #E9F5EE;
+  --warn: #B8730B;
+  --warn-bg: #FBF1E1;
+  --bad: #C0392B;
+  --bad-bg: #FBEAE8;
+
+  --font-body: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--surface-alt);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+a { color: var(--accent); }
+.mono { font-family: var(--font-mono); }
+
+/* ---------------- Register / patient page ---------------- */
+.reg-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(360px, 4fr);
+}
+@media (max-width: 880px) { .reg-shell { grid-template-columns: 1fr; } }
+
+.reg-hero {
+  background: var(--board-bg);
+  color: #CDE0E8;
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 22px;
+}
+.reg-hero .eyebrow { color: var(--board-dim); font-size: 14px; }
+.reg-hero h1 {
+  font-size: 38px;
+  line-height: 1.14;
+  margin: 0;
+  max-width: 480px;
+  font-weight: 650;
+}
+.reg-hero p {
+  max-width: 440px;
+  color: #9FBAC5;
+  font-size: 16px;
+  margin: 0;
+}
+.reg-hero .principle {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--board-amber);
+  border-left: 3px solid var(--board-amber);
+  padding-left: 14px;
+}
+
+.reg-panel {
+  background: var(--surface);
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+}
+.reg-panel h2 { margin: 0 0 2px 0; font-size: 22px; }
+.reg-panel .sub { margin: 0 0 6px 0; color: var(--muted); font-size: 14px; }
+
+label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+input, select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-size: 15px;
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+input:focus, select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+.field { margin-bottom: 2px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+button.primary {
+  background: var(--accent-ink);
+  color: white;
+  border: none;
+  padding: 13px 18px;
+  font-size: 15px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 600;
+}
+button.primary:hover { background: #0F3357; }
+button.primary:disabled { background: #9DB3BB; cursor: default; }
+
+/* --- Boarding-pass token card --- */
+.ticket {
+  display: none;
+  margin-top: 4px;
+  background: var(--board-bg);
+  color: #E7F0F4;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+.ticket.show { display: block; }
+.ticket-main {
+  padding: 20px 22px 16px 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ticket-token {
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--board-amber);
+  letter-spacing: 0.02em;
+}
+.ticket-dept { font-size: 13px; color: var(--board-dim); margin-top: 4px; }
+.ticket-time-label { font-size: 11px; color: var(--board-dim); text-transform: uppercase; letter-spacing: 0.06em; }
+.ticket-time { font-family: var(--font-mono); font-size: 26px; color: #E7F0F4; margin-top: 2px; }
+.ticket-stub {
+  border-top: 1px dashed #2A3B52;
+  padding: 12px 22px 16px 22px;
+  font-size: 13px;
+  color: #9FBAC5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ticket-barcode {
+  height: 26px;
+  width: 90px;
+  background-image: repeating-linear-gradient(90deg, #E7F0F4 0 2px, transparent 2px 5px);
+  opacity: 0.55;
+}
+
+.track-box { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
+.track-box h3 { font-size: 14px; margin: 0 0 10px 0; }
+.track-row { display: flex; gap: 8px; }
+.track-row input { flex: 1; }
+button.secondary {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--ink);
+  white-space: nowrap;
+}
+button.secondary:hover { border-color: var(--accent); color: var(--accent-ink); }
+
+.track-result {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--surface-alt);
+  border-left: 4px solid var(--line);
+  font-size: 14px;
+  display: none;
+}
+.track-result.show { display: block; }
+.track-result .notif { color: var(--warn); margin-top: 6px; font-size: 13px; }
+
+.dash-link { margin-top: 4px; font-size: 13px; color: var(--muted); }
+
+/* ---------------- Staff dashboard ---------------- */
+.dash-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+@media (max-width: 800px) { .dash-shell { grid-template-columns: 1fr; } }
+
+.sidebar {
+  background: var(--board-bg);
+  color: #CDE0E8;
+  padding: 26px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.sidebar h1 { font-size: 18px; margin: 0; font-weight: 650; }
+.sidebar .tagline { font-size: 12.5px; color: var(--board-dim); margin-top: 4px; }
+.sidebar-section h3 {
+  font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--board-dim); margin: 0 0 10px 0; font-weight: 600;
+}
+.doctor-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 13px; padding: 7px 0; border-bottom: 1px solid var(--board-line);
+  gap: 8px;
+}
+.doctor-row:last-child { border-bottom: none; }
+.doctor-row .dept { color: var(--board-dim); font-size: 11.5px; }
+.toggle-btn {
+  border: 1px solid var(--board-line);
+  background: transparent;
+  color: #CDE0E8;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.toggle-btn.on { color: #4FD69C; border-color: #245A45; }
+.toggle-btn.off { color: #E37D7D; border-color: #5A2424; }
+
+.key-status { font-size: 12.5px; margin-bottom: 10px; line-height: 1.5; }
+.key-ok { color: #4FD69C; }
+.key-off { color: #E37D7D; }
+.key-masked { font-family: var(--font-mono); color: var(--board-dim); }
+.key-row { display: flex; gap: 6px; margin-bottom: 6px; }
+.key-row input {
+  flex: 1;
+  padding: 7px 9px;
+  font-size: 12.5px;
+  background: var(--board-bg);
+  border: 1px solid var(--board-line);
+  color: #E7F0F4;
+  border-radius: 3px;
+}
+.key-row input:focus { outline: 1px solid var(--board-amber); border-color: var(--board-amber); }
+.key-row button.secondary {
+  padding: 7px 10px; font-size: 12.5px;
+  background: transparent; border: 1px solid var(--board-line); color: #CDE0E8;
+}
+.key-row button.secondary:hover { border-color: var(--board-amber); color: var(--board-amber); }
+.link-btn {
+  background: none; border: none; color: var(--board-dim);
+  font-size: 11.5px; padding: 0; cursor: pointer; text-decoration: underline;
+  display: none; margin-bottom: 8px;
+}
+.link-btn:hover { color: #E37D7D; }
+.key-hint { font-size: 11px; color: var(--board-dim); line-height: 1.5; }
+
+.dash-main { padding: 26px 34px; overflow-x: auto; }
+.dash-topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 14px; margin-bottom: 18px; flex-wrap: wrap;
+}
+.dash-topbar h2 { margin: 0; font-size: 20px; }
+.dash-topbar .stamp { font-size: 12.5px; color: var(--muted); font-family: var(--font-mono); }
+select#deptFilter { width: auto; padding: 8px 10px; border-radius: 3px; border: 1px solid var(--line); }
+
+.advisory {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-left: 4px solid var(--line);
+  background: var(--surface);
+  font-size: 14px;
+}
+.advisory.good { border-color: var(--good); background: var(--good-bg); }
+.advisory.warn { border-color: var(--warn); background: var(--warn-bg); }
+.advisory.bad { border-color: var(--bad); background: var(--bad-bg); }
+.advisory .tag { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; letter-spacing: 0.05em; }
+
+/* Departures board */
+.board {
+  background: var(--board-bg);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.board table { width: 100%; border-collapse: collapse; }
+.board th {
+  text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--board-dim); padding: 10px 16px; border-bottom: 1px solid var(--board-line);
+}
+.board td {
+  padding: 12px 16px; border-bottom: 1px solid var(--board-line);
+  font-size: 14px; color: #E7F0F4; vertical-align: middle;
+}
+.board tr:last-child td { border-bottom: none; }
+.board .token { font-family: var(--font-mono); font-size: 16px; color: var(--board-amber); font-weight: 700; }
+.board .time { font-family: var(--font-mono); font-size: 15px; }
+.board .delayed { color: #E37D7D; font-family: var(--font-mono); font-size: 13px; }
+.status-pill {
+  font-family: var(--font-mono); font-size: 11px; padding: 3px 8px; border-radius: 10px;
+}
+.status-pill.waiting { background: #1E2A3D; color: #9FBAC5; }
+.status-pill.in_consultation { background: #245A45; color: #7FE0B4; }
+
+.empty-state { padding: 50px 20px; text-align: center; color: var(--board-dim); }
+
+.notif-panel, .log-panel {
+  margin-top: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.notif-panel summary, .log-panel summary {
+  padding: 12px 16px; cursor: pointer; font-size: 13.5px; color: var(--muted);
+}
+.notif-entry, .log-entry {
+  font-family: var(--font-mono); font-size: 12px;
+  padding: 6px 16px; border-top: 1px solid var(--line); color: var(--muted);
+}
+.log-entry .step { color: var(--accent-ink); font-weight: 700; margin-right: 6px; }
+.notif-entry .tkn { color: var(--accent-ink); font-weight: 700; margin-right: 4px; }

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register · Smart Hospital Queue</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="reg-shell">
+
+  <div class="reg-hero">
+    <div class="eyebrow">Smart Hospital Queue</div>
+    <h1>Get your token and your time. Stay home until then.</h1>
+    <p>Register once online. The agent checks the live queue, how many
+    doctors are on duty, and how long consultations are taking right now —
+    then gives you a token and a predicted arrival time, and keeps that
+    time honest as conditions change.</p>
+    <div class="principle">Don't wait in the queue. Make the queue wait for you.</div>
+  </div>
+
+  <div class="reg-panel">
+    <div>
+      <h2>Register for a token</h2>
+      <p class="sub">You'll get a token number and an expected arrival time immediately.</p>
+    </div>
+
+    <form id="regForm">
+      <div class="field">
+        <label for="name">Full name</label>
+        <input type="text" id="name" name="name" required placeholder="e.g. Keerthivasan">
+      </div>
+      <div class="field field-row">
+        <div>
+          <label for="phone">Phone number</label>
+          <input type="tel" id="phone" name="phone" required placeholder="e.g. 98765 43210">
+        </div>
+        <div>
+          <label for="department">Department</label>
+          <select id="department" name="department" required>
+            <option value="">Select…</option>
+            <option>Cardiology</option>
+            <option>General Medicine</option>
+            <option>Pediatrics</option>
+            <option>Orthopedics</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="primary" id="submitBtn">Get my token</button>
+    </form>
+
+    <div class="ticket" id="ticket">
+      <div class="ticket-main">
+        <div>
+          <div class="ticket-token" id="ticketToken">—</div>
+          <div class="ticket-dept" id="ticketDept">—</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="ticket-time-label">Expected arrival</div>
+          <div class="ticket-time" id="ticketTime">—</div>
+        </div>
+      </div>
+      <div class="ticket-stub">
+        <span id="ticketPosition">—</span>
+        <span class="ticket-barcode"></span>
+      </div>
+    </div>
+
+    <div class="track-box">
+      <h3>Already have a token? Check its status</h3>
+      <div class="track-row">
+        <input type="text" id="trackInput" placeholder="e.g. C001" class="mono">
+        <button class="secondary" id="trackBtn">Check</button>
+      </div>
+      <div class="track-result" id="trackResult"></div>
+    </div>
+
+    <div class="dash-link">Staff view: <a href="/dashboard">open the live departures board →</a></div>
+  </div>
+
+</div>
+
+<script>
+const form = document.getElementById('regForm');
+const btn = document.getElementById('submitBtn');
+const ticket = document.getElementById('ticket');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  btn.disabled = true;
+  btn.textContent = 'Agent is calculating…';
+
+  const payload = {
+    name: document.getElementById('name').value,
+    phone: document.getElementById('phone').value,
+    department: document.getElementById('department').value,
+  };
+
+  try {
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) { alert(data.error || 'Something went wrong.'); return; }
+
+    document.getElementById('ticketToken').textContent = data.token;
+    document.getElementById('ticketDept').textContent = data.department;
+    document.getElementById('ticketTime').textContent = data.expected_time_display;
+    document.getElementById('ticketPosition').textContent =
+      data.position ? `Position ${data.position} of ${data.waiting_count} waiting` : 'Queued';
+    ticket.classList.add('show');
+
+    form.reset();
+  } catch (err) {
+    alert('Could not reach the agent. Is the server running?');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Get my token';
+  }
+});
+
+document.getElementById('trackBtn').addEventListener('click', async () => {
+  const token = document.getElementById('trackInput').value.trim().toUpperCase();
+  if (!token) return;
+  const box = document.getElementById('trackResult');
+
+  const res = await fetch('/api/token/' + encodeURIComponent(token));
+  const data = await res.json();
+
+  if (!res.ok) {
+    box.className = 'track-result show';
+    box.innerHTML = `<strong>${data.error}</strong>`;
+    return;
+  }
+
+  let html = `<strong>${data.token}</strong> · ${data.department} — `;
+  if (data.status === 'waiting') {
+    html += `Position ${data.position}, expected around <strong>${data.expected_time_display}</strong>.`;
+  } else if (data.status === 'in_consultation') {
+    html += `You're currently with the doctor.`;
+  } else {
+    html += `This token has been completed.`;
+  }
+  if (data.new_notifications.length) {
+    html += data.new_notifications.map(n => `<div class="notif">${n}</div>`).join('');
+  }
+  box.className = 'track-result show';
+  box.innerHTML = html;
+});
+</script>
+</body>
+</html>

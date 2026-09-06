@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Departures Board · Smart Hospital Queue</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="dash-shell">
+
+  <aside class="sidebar">
+    <div>
+      <h1>Smart Queue Agent</h1>
+      <div class="tagline">Live tokens &amp; predicted times</div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Doctors on duty</h3>
+      <div id="doctorList"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>AI Settings</h3>
+      <div id="apiKeyStatus" class="key-status">Checking…</div>
+      <div class="key-row">
+        <input type="password" id="apiKeyInput" placeholder="sk-..." autocomplete="off">
+        <button class="secondary" id="saveKeyBtn">Save</button>
+      </div>
+      <button class="link-btn" id="clearKeyBtn">Clear key</button>
+      <div class="key-hint">Paste your own OpenAI API key to power the AI Queue Agent's advisory text. Without a key, a rule-based fallback is used instead. Key is kept in memory only, not saved to disk.</div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Navigate</h3>
+      <div style="font-size:13px;"><a href="/" style="color:#BFDAE4;">+ Register new patient</a></div>
+    </div>
+  </aside>
+
+  <main class="dash-main">
+    <div class="dash-topbar">
+      <div>
+        <h2>Live departures board</h2>
+        <div class="stamp" id="stamp">updated —</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <select id="deptFilter">
+          <option value="">All departments</option>
+        </select>
+        <button class="secondary" id="recalcBtn">Recalculate now</button>
+      </div>
+    </div>
+
+    <div class="advisory" id="advisory">
+      <div class="tag">AI Queue Agent</div>
+      <div id="advisoryText">Loading recommendation…</div>
+    </div>
+
+    <div class="board">
+      <table id="queueTable">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Patient</th>
+            <th>Department</th>
+            <th>Expected</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="queueBody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none;">No one currently in the queue.</div>
+    </div>
+
+    <details class="notif-panel" open>
+      <summary>Notifications sent to patients</summary>
+      <div id="notifBody"></div>
+    </details>
+
+    <details class="log-panel">
+      <summary>Agent reasoning log (OBSERVE → THINK → ACT)</summary>
+      <div id="logBody"></div>
+    </details>
+  </main>
+
+</div>
+
+<script src="/static/dashboard.js"></script>
+</body>
+</html>
